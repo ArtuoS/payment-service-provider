@@ -23,13 +23,13 @@ func main() {
 	transactionService := service.NewTransactionService(transactionRepository, payableService)
 
 	r := gin.Default()
-	v1 := r.Group("/v1")
+	transactionsV1 := r.Group("/v1/transaction")
 	{
-		v1.GET("/transaction", func(ctx *gin.Context) {
+		transactionsV1.GET("", func(ctx *gin.Context) {
 			ctx.JSON(http.StatusOK, transactionService.GetTransactions())
 		})
 
-		v1.POST("/transaction", func(ctx *gin.Context) {
+		transactionsV1.POST("", func(ctx *gin.Context) {
 			data, err := io.ReadAll(ctx.Request.Body)
 			if err != nil {
 				ctx.AbortWithError(http.StatusBadRequest, err)
@@ -45,6 +45,14 @@ func main() {
 			}
 
 			ctx.JSON(http.StatusOK, "Transaction created.")
+		})
+	}
+
+	payablesV1 := r.Group("/v1/payables")
+	{
+		payablesV1.GET("balance", func(ctx *gin.Context) {
+			values := ctx.Request.URL.Query()
+			ctx.JSON(http.StatusOK, payableService.GetBalance(domain.NewGetBalanceModel(values.Get("status"), values.Get("card_owner"))))
 		})
 	}
 

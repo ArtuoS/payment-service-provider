@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ArtuoS/payment-service-provider/internal/database"
 	"github.com/ArtuoS/payment-service-provider/internal/domain"
@@ -28,4 +29,21 @@ func (p *PayableRepository) CreatePayable(createPayableModel *domain.CreatePayab
 	}
 
 	return lastInsertedId, nil
+}
+
+func (t *PayableRepository) GetBalance(createPayableModel *domain.GetBalanceModel) []domain.GetBalanceResult {
+	payables := []domain.GetBalanceResult{}
+	payable := domain.GetBalanceResult{}
+	rows, _ := t.Context.DB.Queryx("select p.id, p.status, p.payment_date, t.transaction_value, t.card_owner from payables p inner join transactions t on t.id = p.transaction_id where p.status = $1 and t.card_owner = $2", createPayableModel.Status, createPayableModel.CardOwner)
+	for rows.Next() {
+		err := rows.StructScan(&payable)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		payable.FormatStatus()
+		payables = append(payables, payable)
+	}
+
+	return payables
 }

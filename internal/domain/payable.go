@@ -17,6 +17,39 @@ type CreatePayableModel struct {
 	TransactionId int64     `db:"transaction_id" json:"transaction_id"`
 }
 
+type GetBalanceModel struct {
+	CardOwner string `db:"card_owner" json:"card_owner"`
+	Status    Status `db:"status" json:"status"`
+}
+
+type GetBalanceResult struct {
+	ID          int64     `db:"id" json:"id"`
+	StatusDb    Status    `db:"status" json:"-"`
+	Status      string    `json:"status"`
+	CardOwner   string    `db:"card_owner" json:"card_owner"`
+	PaymentDate time.Time `db:"payment_date" json:"payment_date"`
+	Value       float32   `db:"transaction_value" json:"transaction_value"`
+}
+
+func (g *GetBalanceResult) FormatStatus() {
+	g.Status = g.StatusDb.String()
+}
+
+func NewGetBalanceModel(status string, cardOwner string) *GetBalanceModel {
+	return &GetBalanceModel{
+		Status: func() Status {
+			switch status {
+			case "0":
+				return Paid
+			case "1":
+				return WaitingFunds
+			}
+			return WaitingFunds
+		}(),
+		CardOwner: cardOwner,
+	}
+}
+
 func NewCreatePayableModel(transactionId int64, createTransactionModel *CreateTransactionModel) *CreatePayableModel {
 	status, paymentDate := func() (Status, time.Time) {
 		switch createTransactionModel.PaymentMethod {
@@ -42,7 +75,7 @@ const (
 	WaitingFunds
 )
 
-func (s Status) Sting() string {
+func (s Status) String() string {
 	switch s {
 	case Paid:
 		return "paid"
