@@ -28,6 +28,6 @@ func (t *TransactionService) CreateTransaction(createTransactionModel *domain.Cr
 	return err
 }
 
-func (t *TransactionService) GetTransactions() []domain.Transaction {
+func (t *TransactionService) GetTransactions() []domain.GetTransactionResult {
 	return t.repository.GetTransactions()
 }

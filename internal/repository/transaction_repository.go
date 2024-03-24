@@ -32,16 +32,17 @@ func (t *TransactionRepository) CreateTransaction(createTransactionModel *domain
 	return lastInsertedId, nil
 }
 
-func (t *TransactionRepository) GetTransactions() []domain.Transaction {
-	transactions := []domain.Transaction{}
-	transaction := domain.Transaction{}
-	rows, _ := t.Context.DB.Queryx("SELECT ID, transaction_value, description, payment_method, card_number, card_owner, card_expiration_date, card_cvv FROM transactions")
+func (t *TransactionRepository) GetTransactions() []domain.GetTransactionResult {
+	transactions := []domain.GetTransactionResult{}
+	transaction := domain.GetTransactionResult{}
+	rows, _ := t.Context.DB.Queryx("SELECT id, transaction_value, description, payment_method, card_number, card_owner, card_expiration_date, card_cvv FROM transactions")
 	for rows.Next() {
 		err := rows.StructScan(&transaction)
 		if err != nil {
 			log.Fatalln(err)
 		}
 
+		transaction.Format()
 		transactions = append(transactions, transaction)
 	}
 

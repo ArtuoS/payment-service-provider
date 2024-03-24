@@ -31,7 +31,7 @@ type GetBalanceResult struct {
 	Value       float32   `db:"transaction_value" json:"transaction_value"`
 }
 
-func (g *GetBalanceResult) FormatStatus() {
+func (g *GetBalanceResult) Format() {
 	g.Status = g.StatusDb.String()
 }
 

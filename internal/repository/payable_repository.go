@@ -41,7 +41,7 @@ func (t *PayableRepository) GetBalance(createPayableModel *domain.GetBalanceMode
 			log.Fatalln(err)
 		}
 
-		payable.FormatStatus()
+		payable.Format()
 		payables = append(payables, payable)
 	}
 
