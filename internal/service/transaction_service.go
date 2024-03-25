@@ -26,7 +26,7 @@ func (t *TransactionService) CreateTransaction(createTransactionModel *domain.Cr
 		return err
 	}
 
-	_, err = t.payableService.repository.CreatePayable(domain.NewCreatePayableModel(transactionId, createTransactionModel))
+	_, err = t.payableService.CreatePayable(domain.NewCreatePayableModel(transactionId, createTransactionModel))
 	if err != nil {
 		logrus.Error(err)
 	}
