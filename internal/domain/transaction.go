@@ -46,6 +46,7 @@ func (c *CreateTransactionModel) ApplyDiscount() {
 	case DebitCard:
 		c.Value = c.Value - (c.Value * 0.03)
 	}
+
 }
 
 func (g *GetTransactionResult) Format() {

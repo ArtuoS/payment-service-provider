@@ -48,9 +48,9 @@ func main() {
 		})
 	}
 
-	payablesV1 := r.Group("/v1/payables")
+	payablesV1 := r.Group("/v1/payable")
 	{
-		payablesV1.GET("balance", func(ctx *gin.Context) {
+		payablesV1.GET("", func(ctx *gin.Context) {
 			values := ctx.Request.URL.Query()
 			ctx.JSON(http.StatusOK, payableService.GetBalance(domain.NewGetBalanceModel(values.Get("status"), values.Get("card_owner"))))
 		})

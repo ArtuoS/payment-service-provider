@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/ArtuoS/payment-service-provider/internal/database"
@@ -19,8 +18,6 @@ func NewPayableRepository(context *database.Context) *PayableRepository {
 }
 
 func (p *PayableRepository) CreatePayable(createPayableModel *domain.CreatePayableModel) (int64, error) {
-	fmt.Println(createPayableModel)
-
 	var lastInsertedId int64
 	query := `INSERT INTO payables (status, payment_date, transaction_id) VALUES ($1, $2, $3) RETURNING id`
 	err := p.Context.DB.QueryRow(query, createPayableModel.Status, createPayableModel.PaymentDate, createPayableModel.TransactionId).Scan(&lastInsertedId)

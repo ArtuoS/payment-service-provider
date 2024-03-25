@@ -2,6 +2,8 @@ package domain
 
 import (
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Payable struct {
@@ -54,6 +56,7 @@ func NewCreatePayableModel(transactionId int64, createTransactionModel *CreateTr
 	status, paymentDate := func() (Status, time.Time) {
 		switch createTransactionModel.PaymentMethod {
 		case CreditCard:
+			logrus.Info("Applying a D+30 to the Payment Date.")
 			return Paid, createTransactionModel.CardExpirationDate.AddDate(0, 0, 30)
 		case DebitCard:
 			return WaitingFunds, createTransactionModel.CardExpirationDate

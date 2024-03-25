@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/ArtuoS/payment-service-provider/internal/domain"
 	"github.com/ArtuoS/payment-service-provider/internal/repository"
+	"github.com/sirupsen/logrus"
 )
 
 type TransactionService struct {
@@ -21,10 +22,14 @@ func (t *TransactionService) CreateTransaction(createTransactionModel *domain.Cr
 	createTransactionModel.ApplyDiscount()
 	transactionId, err := t.repository.CreateTransaction(createTransactionModel)
 	if err != nil {
+		logrus.Error(err)
 		return err
 	}
 
 	_, err = t.payableService.repository.CreatePayable(domain.NewCreatePayableModel(transactionId, createTransactionModel))
+	if err != nil {
+		logrus.Error(err)
+	}
 	return err
 }
 
