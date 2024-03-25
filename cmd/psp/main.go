@@ -1,12 +1,8 @@
 package main
 
 import (
-	"encoding/json"
-	"io"
-	"net/http"
-
+	"github.com/ArtuoS/payment-service-provider/handler"
 	"github.com/ArtuoS/payment-service-provider/internal/database"
-	"github.com/ArtuoS/payment-service-provider/internal/domain"
 	"github.com/ArtuoS/payment-service-provider/internal/repository"
 	"github.com/ArtuoS/payment-service-provider/internal/service"
 	"github.com/gin-gonic/gin"
@@ -22,38 +18,19 @@ func main() {
 	transactionRepository := repository.NewTransactionRepository(context)
 	transactionService := service.NewTransactionService(transactionRepository, payableService)
 
+	payableHandler := handler.NewPayableHandler(payableService)
+	transactionHandler := handler.NewTransactionHandler(transactionService)
+
 	r := gin.Default()
 	transactionsV1 := r.Group("/v1/transaction")
 	{
-		transactionsV1.GET("", func(ctx *gin.Context) {
-			ctx.JSON(http.StatusOK, transactionService.GetTransactions())
-		})
-
-		transactionsV1.POST("", func(ctx *gin.Context) {
-			data, err := io.ReadAll(ctx.Request.Body)
-			if err != nil {
-				ctx.AbortWithError(http.StatusBadRequest, err)
-				return
-			}
-
-			var createTransactionModel *domain.CreateTransactionModel
-			json.Unmarshal(data, &createTransactionModel)
-			err = transactionService.CreateTransaction(createTransactionModel)
-			if err != nil {
-				ctx.AbortWithError(http.StatusInternalServerError, err)
-				return
-			}
-
-			ctx.JSON(http.StatusOK, "Transaction created.")
-		})
+		transactionsV1.GET("", transactionHandler.GetTransactions)
+		transactionsV1.POST("", transactionHandler.CreateTransaction)
 	}
 
 	payablesV1 := r.Group("/v1/payable")
 	{
-		payablesV1.GET("", func(ctx *gin.Context) {
-			values := ctx.Request.URL.Query()
-			ctx.JSON(http.StatusOK, payableService.GetBalance(domain.NewGetBalanceModel(values.Get("status"), values.Get("card_owner"))))
-		})
+		payablesV1.GET("", payableHandler.GetBalance)
 	}
 
 	r.Run("127.0.0.1:8080")
